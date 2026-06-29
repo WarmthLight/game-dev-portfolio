@@ -1,0 +1,50 @@
+# 🚀 Vercel 快速部署（3分钟搞定）
+
+## 步骤1：打开终端
+
+在 portfolio 文件夹打开终端（或按住Shift右键 → 在此处打开PowerShell）
+
+## 步骤2：登录 Vercel
+
+输入以下命令：
+```
+vercel login
+```
+
+按提示选择登录方式（推荐用 GitHub 账号登录）
+
+## 步骤3：部署
+
+登录成功后，输入：
+```
+vercel --prod
+```
+
+按提示操作：
+- Set up and deploy? → 输入 Y
+- Which scope? → 选择你的账号
+- Link to existing project? → 输入 N
+- Project name? → 直接回车（使用默认名）
+- Directory where your code lives? → 直接回车（当前目录）
+- Want to override settings? → 输入 N
+
+## 步骤4：等待部署
+
+等待1-2分钟，部署完成后会显示网站地址
+
+## 步骤5：访问网站
+
+复制显示的地址，在浏览器打开即可！
+
+---
+
+## 常见问题
+
+### Q: 视频播放不了？
+A: Vercel 免费版有带宽限制，视频可能加载慢。可以考虑压缩视频或使用外链。
+
+### Q: 国内访问慢？
+A: Vercel 国内访问速度还可以，比 GitHub Pages 快。如果还是慢，可以考虑腾讯云 COS。
+
+### Q: 如何更新网站？
+A: 修改代码后，再次运行 `vercel --prod` 即可。

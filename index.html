@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Unity游戏开发工程师作品集，展示皮影戏创作工具和3D动作RPG游戏开发项目">
+    <meta name="keywords" content="Unity, 游戏开发, C#, 皮影戏, RPG, AI系统, Shader开发">
+    <meta name="author" content="王威龙">
+    <meta property="og:title" content="游戏开发作品集 - 王威龙">
+    <meta property="og:description" content="Unity游戏开发工程师，擅长游戏系统设计、AI编程和工具开发">
+    <meta property="og:type" content="website">
+    <title>游戏开发作品集 - 王威龙</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1E293B',
+                        secondary: '#334155',
+                        accent: '#22C55E',
+                        dark: '#0F172A',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Space Grotesk', 'sans-serif'],
+                        display: ['Archivo', 'sans-serif']
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'fade-in': 'fadeIn 0.5s ease-out'
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' }
+                        },
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px rgba(34, 197, 94, 0.5)' },
+                            '100%': { boxShadow: '0 0 20px rgba(34, 197, 94, 0.8)' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* 基础响应式 */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        /* 减少动画偏好 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            html {
+                scroll-behavior: auto;
+            }
+        }
+
+        /* 视频模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            padding: 1rem;
+        }
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            width: 100%;
+            max-width: 90vw;
+            max-height: 80vh;
+        }
+        .modal-content video {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            border-radius: 8px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            z-index: 1001;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .modal-close:hover {
+            color: #22C55E;
+            background: rgba(34, 197, 94, 0.2);
+        }
+
+        /* 技术文档模态框 */
+        .doc-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.95);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .doc-modal.active {
+            display: block;
+        }
+        .doc-content {
+            max-width: 900px;
+            margin: 1rem auto;
+            padding: 1.5rem;
+            background: #1E293B;
+            border-radius: 12px;
+            color: #F8FAFC;
+            min-height: calc(100vh - 2rem);
+        }
+        .doc-content h1 { font-size: 1.5rem; margin-bottom: 1rem; color: #22C55E; }
+        .doc-content h2 { font-size: 1.25rem; margin: 1.5rem 0 0.75rem; color: #22C55E; border-bottom: 1px solid #334155; padding-bottom: 0.5rem; }
+        .doc-content h3 { font-size: 1.1rem; margin: 1rem 0 0.5rem; color: #22C55E; }
+        .doc-content p { margin-bottom: 0.75rem; line-height: 1.7; color: #CBD5E1; font-size: 0.95rem; }
+        .doc-content ul, .doc-content ol { margin-bottom: 0.75rem; padding-left: 1.25rem; }
+        .doc-content li { margin-bottom: 0.4rem; color: #CBD5E1; font-size: 0.95rem; }
+        .doc-content pre {
+            background: #0F172A;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            -webkit-overflow-scrolling: touch;
+        }
+        .doc-content code { color: #22C55E; font-size: 0.85rem; }
+        .doc-content table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.85rem; }
+        .doc-content th, .doc-content td { border: 1px solid #334155; padding: 0.5rem; text-align: left; }
+        .doc-content th { background: #0F172A; color: #22C55E; }
+
+        /* 文档模态框关闭按钮 */
+        .doc-modal .modal-close {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+        }
+
+        /* 平板适配 (768px - 1024px) */
+        @media (min-width: 768px) {
+            .doc-content {
+                margin: 2rem auto;
+                padding: 2rem;
+            }
+            .doc-content h1 { font-size: 2rem; }
+            .doc-content h2 { font-size: 1.5rem; }
+            .doc-content h3 { font-size: 1.25rem; }
+            .doc-content pre { font-size: 0.9rem; }
+        }
+
+        /* 桌面端适配 (>1024px) */
+        @media (min-width: 1024px) {
+            .doc-content {
+                margin: 3rem auto;
+                padding: 3rem;
+            }
+        }
+
+        /* Mobile-first project card */
+        @media (max-width: 768px) {
+            .project-card .project-overlay {
+                position: relative;
+                opacity: 1;
+                background: transparent;
+            }
+            .project-card .project-overlay > div {
+                padding: 1rem;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .project-card:hover .project-overlay {
+                opacity: 1;
+            }
+            .project-card:hover .project-bg {
+                transform: scale(1.05);
+            }
+        }
+
+        .project-bg {
+            transition: transform 0.5s ease;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Touch-friendly targets */
+        a, button {
+            min-height: 44px;
+            min-width: 44px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 移动端优化 */
+        @media (max-width: 640px) {
+            .mobile-padding {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+
+            /* 优化小屏幕字体 */
+            h1 { font-size: 2rem !important; }
+            h2 { font-size: 1.5rem !important; }
+
+            /* 优化按钮间距 */
+            .btn-group {
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            /* 优化标签显示 */
+            .tags-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+        }
+
+        /* 超小屏幕 (<375px) */
+        @media (max-width: 375px) {
+            .doc-content {
+                margin: 0.5rem;
+                padding: 1rem;
+                border-radius: 8px;
+            }
+            .doc-content pre {
+                font-size: 0.7rem;
+                padding: 0.75rem;
+            }
+        }
+
+        /* 横屏模式优化 */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .modal-content video {
+                max-height: 70vh;
+            }
+            .doc-content {
+                margin: 0.5rem;
+                padding: 1rem;
+            }
+        }
+
+        /* 标签样式 */
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            background: rgba(34, 197, 94, 0.2);
+            color: #22C55E;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            margin: 0.15rem;
+            white-space: nowrap;
+        }
+
+        @media (min-width: 768px) {
+            .tag {
+                padding: 0.35rem 0.85rem;
+                font-size: 0.8rem;
+                margin: 0.25rem;
+            }
+        }
+
+        /* 滚动条优化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1E293B;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #22C55E;
+        }
+
+        /* 安全区域适配 (iPhone X等) */
+        @supports (padding: env(safe-area-inset-bottom)) {
+            body {
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .modal-close {
+                top: calc(1rem + env(safe-area-inset-top));
+            }
+        }
+    </style>
+</head>
+<body class="bg-dark text-light font-sans">
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-dark/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-6xl mx-auto px-3 sm:px-4 py-3 sm:py-4 flex justify-between items-center">
+            <a href="#" class="text-lg sm:text-xl font-bold text-accent flex items-center gap-2">
+                <i class="fas fa-gamepad"></i>
+                <span>Portfolio</span>
+            </a>
+            <div class="hidden md:flex space-x-6 lg:space-x-8">
+                <a href="#projects" class="hover:text-accent transition-colors duration-200 cursor-pointer px-3 lg:px-4 py-2 text-sm lg:text-base">项目</a>
+                <a href="#about" class="hover:text-accent transition-colors duration-200 cursor-pointer px-3 lg:px-4 py-2 text-sm lg:text-base">关于</a>
+                <a href="#contact" class="hover:text-accent transition-colors duration-200 cursor-pointer px-3 lg:px-4 py-2 text-sm lg:text-base">联系</a>
+            </div>
+            <button id="mobile-menu-btn" class="md:hidden cursor-pointer p-2 -m-2 w-10 h-10 flex items-center justify-center" aria-label="打开菜单" aria-expanded="false">
+                <i class="fas fa-bars text-lg sm:text-xl"></i>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-dark/95 border-t border-white/10">
+            <div class="px-3 sm:px-4 py-4 sm:py-6 space-y-1 sm:space-y-2">
+                <a href="#projects" class="block hover:text-accent transition-colors duration-200 cursor-pointer py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg hover:bg-white/5 text-sm sm:text-base">项目</a>
+                <a href="#about" class="block hover:text-accent transition-colors duration-200 cursor-pointer py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg hover:bg-white/5 text-sm sm:text-base">关于</a>
+                <a href="#contact" class="block hover:text-accent transition-colors duration-200 cursor-pointer py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg hover:bg-white/5 text-sm sm:text-base">联系</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="min-h-screen flex items-center justify-center px-4 pt-16 sm:pt-20 relative overflow-hidden">
+        <!-- 背景动画 -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none">
+            <div class="absolute top-1/4 left-1/4 w-64 h-64 bg-accent/5 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/3 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+        </div>
+
+        <div class="text-center max-w-3xl relative z-10">
+            <div class="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 mx-auto mb-6 sm:mb-8 rounded-full bg-gradient-to-br from-accent to-emerald-600 flex items-center justify-center animate-float shadow-lg shadow-accent/30">
+                <i class="fas fa-gamepad text-3xl sm:text-4xl md:text-5xl text-dark"></i>
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4 sm:mb-6 font-display">
+                <span class="text-light">游戏开发</span>
+                <span class="text-accent">工程师</span>
+            </h1>
+            <p class="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-400 mb-6 sm:mb-8 md:mb-10 max-w-2xl mx-auto px-4 leading-relaxed">
+                专注于Unity游戏开发，擅长游戏系统设计、AI编程和工具开发
+            </p>
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
+                <a href="#projects" class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 bg-accent text-dark font-semibold rounded-lg hover:bg-emerald-400 hover:shadow-lg hover:shadow-accent/30 transition-all duration-300 cursor-pointer text-center transform hover:-translate-y-1">
+                    <i class="fas fa-eye mr-2"></i>查看作品
+                </a>
+                <a href="#contact" class="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 border-2 border-accent text-accent font-semibold rounded-lg hover:bg-accent/10 hover:shadow-lg hover:shadow-accent/20 transition-all duration-300 cursor-pointer text-center transform hover:-translate-y-1">
+                    <i class="fas fa-envelope mr-2"></i>联系我
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="py-12 sm:py-16 md:py-20 px-3 sm:px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-10 sm:mb-12 md:mb-16">
+                <span class="text-accent">精选</span>项目
+            </h2>
+
+            <!-- Project 1: Shadow Play -->
+            <div class="project-card relative rounded-xl sm:rounded-2xl overflow-hidden mb-10 sm:mb-12 md:mb-16 group">
+                <div class="aspect-video bg-gradient-to-br from-primary to-secondary relative">
+                    <!-- 项目封面 -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center">
+                            <i class="fas fa-theater-masks text-4xl sm:text-5xl md:text-6xl lg:text-8xl text-accent/50 mb-2 sm:mb-4"></i>
+                            <p class="text-xs sm:text-sm md:text-base text-gray-400">Shadow Play 皮影戏</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Desktop: hover overlay -->
+                <div class="hidden md:flex project-overlay absolute inset-0 bg-dark/90 opacity-0 transition-all duration-300 items-center justify-center p-6 lg:p-8 backdrop-blur-sm">
+                    <div class="text-center max-w-2xl transform transition-transform duration-300">
+                        <h3 class="text-2xl lg:text-3xl xl:text-4xl font-bold mb-3 lg:mb-4 text-accent font-display">Shadow Play 皮影戏</h3>
+                        <p class="text-sm lg:text-base xl:text-lg text-gray-300 mb-4 lg:mb-6 leading-relaxed">
+                            中国传统皮影戏创作与表演工具。用户可以DIY绘制角色，使用三杆操控系统进行表演，
+                            录制配音并导出视频。完整的游戏开发流程，包含自定义Shader、语音识别和视频编码。
+                        </p>
+                        <div class="flex flex-wrap gap-2 lg:gap-3 justify-center mb-6 lg:mb-8">
+                            <span class="tag">Unity 2022</span>
+                            <span class="tag">自定义Shader</span>
+                            <span class="tag">Vosk语音识别</span>
+                            <span class="tag">FFmpeg视频编码</span>
+                            <span class="tag">Timeline录制</span>
+                            <span class="tag">2D物理系统</span>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center">
+                            <button onclick="openVideoModal('shadowplay-video')" class="px-5 lg:px-6 py-2.5 lg:py-3 bg-accent text-dark font-semibold rounded-lg hover:bg-emerald-400 hover:shadow-lg hover:shadow-accent/30 transition-all duration-300 cursor-pointer text-sm lg:text-base transform hover:-translate-y-0.5">
+                                <i class="fas fa-play mr-2"></i>演示视频
+                            </button>
+                            <button onclick="openDocModal('shadowplay-doc')" class="px-5 lg:px-6 py-2.5 lg:py-3 border-2 border-accent text-accent font-semibold rounded-lg hover:bg-accent/10 hover:shadow-lg hover:shadow-accent/20 transition-all duration-300 cursor-pointer text-sm lg:text-base transform hover:-translate-y-0.5">
+                                <i class="fas fa-file-alt mr-2"></i>技术文档
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Mobile: always visible content -->
+                <div class="md:hidden p-4 sm:p-6 bg-dark/90">
+                    <h3 class="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-accent">Shadow Play 皮影戏</h3>
+                    <p class="text-gray-300 mb-3 sm:mb-4 text-sm sm:text-base">
+                        中国传统皮影戏创作与表演工具。DIY绘制角色，三杆操控系统，录制配音并导出视频。
+                    </p>
+                    <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                        <span class="tag">Unity 2022</span>
+                        <span class="tag">自定义Shader</span>
+                        <span class="tag">Vosk语音识别</span>
+                    </div>
+                    <div class="flex gap-2 sm:gap-3 btn-group">
+                        <button onclick="openVideoModal('shadowplay-video')" class="flex-1 text-center px-3 sm:px-4 py-2.5 sm:py-3 bg-accent text-dark font-semibold rounded-lg cursor-pointer text-sm sm:text-base">
+                            <i class="fas fa-play mr-1 sm:mr-2"></i>演示视频
+                        </button>
+                        <button onclick="openDocModal('shadowplay-doc')" class="flex-1 text-center px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-accent text-accent font-semibold rounded-lg cursor-pointer text-sm sm:text-base">
+                            <i class="fas fa-file-alt mr-1 sm:mr-2"></i>技术文档
+                        </button>
+                    </div>
+                </div>
+                <!-- Desktop: bottom info -->
+                <div class="hidden md:block absolute bottom-0 left-0 right-0 bg-gradient-to-t from-dark to-transparent p-4 sm:p-6">
+                    <h3 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2">Shadow Play 皮影戏</h3>
+                    <p class="text-xs sm:text-sm md:text-base text-gray-400">中国传统皮影戏创作与表演工具</p>
+                </div>
+            </div>
+
+            <!-- Project 2: JYJH -->
+            <div class="project-card relative rounded-xl sm:rounded-2xl overflow-hidden mb-10 sm:mb-12 md:mb-16 group">
+                <div class="aspect-video bg-gradient-to-br from-primary to-secondary relative">
+                    <!-- 项目封面 -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="text-center">
+                            <i class="fas fa-khanda text-4xl sm:text-5xl md:text-6xl lg:text-8xl text-accent/50 mb-2 sm:mb-4"></i>
+                            <p class="text-xs sm:text-sm md:text-base text-gray-400">剑影江湖：血刃争锋</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Desktop: hover overlay -->
+                <div class="hidden md:flex project-overlay absolute inset-0 bg-dark/90 opacity-0 transition-all duration-300 items-center justify-center p-6 lg:p-8 backdrop-blur-sm">
+                    <div class="text-center max-w-2xl transform transition-transform duration-300">
+                        <h3 class="text-2xl lg:text-3xl xl:text-4xl font-bold mb-3 lg:mb-4 text-accent font-display">剑影江湖：血刃争锋</h3>
+                        <p class="text-sm lg:text-base xl:text-lg text-gray-300 mb-4 lg:mb-6 leading-relaxed">
+                            基于Unity的3D动作RPG游戏。包含完整的战斗系统、敌人AI、技能系统、
+                            NPC对话和关卡流程。支持4种技能、Buff系统和Boss战。
+                        </p>
+                        <div class="flex flex-wrap gap-2 lg:gap-3 justify-center mb-6 lg:mb-8">
+                            <span class="tag">Unity 2022</span>
+                            <span class="tag">NavMesh寻路</span>
+                            <span class="tag">Animator状态机</span>
+                            <span class="tag">CharacterController</span>
+                            <span class="tag">技能系统</span>
+                            <span class="tag">Buff系统</span>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3 lg:gap-4 justify-center">
+                            <button onclick="openVideoModal('jyjh-video')" class="px-5 lg:px-6 py-2.5 lg:py-3 bg-accent text-dark font-semibold rounded-lg hover:bg-emerald-400 hover:shadow-lg hover:shadow-accent/30 transition-all duration-300 cursor-pointer text-sm lg:text-base transform hover:-translate-y-0.5">
+                                <i class="fas fa-play mr-2"></i>演示视频
+                            </button>
+                            <button onclick="openDocModal('jyjh-doc')" class="px-5 lg:px-6 py-2.5 lg:py-3 border-2 border-accent text-accent font-semibold rounded-lg hover:bg-accent/10 hover:shadow-lg hover:shadow-accent/20 transition-all duration-300 cursor-pointer text-sm lg:text-base transform hover:-translate-y-0.5">
+                                <i class="fas fa-file-alt mr-2"></i>技术文档
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Mobile: always visible content -->
+                <div class="md:hidden p-4 sm:p-6 bg-dark/90">
+                    <h3 class="text-xl sm:text-2xl font-bold mb-2 sm:mb-3 text-accent">剑影江湖：血刃争锋</h3>
+                    <p class="text-gray-300 mb-3 sm:mb-4 text-sm sm:text-base">
+                        基于Unity的3D动作RPG游戏。包含战斗系统、敌人AI、技能系统和Boss战。
+                    </p>
+                    <div class="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+                        <span class="tag">Unity 2022</span>
+                        <span class="tag">NavMesh寻路</span>
+                        <span class="tag">技能系统</span>
+                    </div>
+                    <div class="flex gap-2 sm:gap-3 btn-group">
+                        <button onclick="openVideoModal('jyjh-video')" class="flex-1 text-center px-3 sm:px-4 py-2.5 sm:py-3 bg-accent text-dark font-semibold rounded-lg cursor-pointer text-sm sm:text-base">
+                            <i class="fas fa-play mr-1 sm:mr-2"></i>演示视频
+                        </button>
+                        <button onclick="openDocModal('jyjh-doc')" class="flex-1 text-center px-3 sm:px-4 py-2.5 sm:py-3 border-2 border-accent text-accent font-semibold rounded-lg cursor-pointer text-sm sm:text-base">
+                            <i class="fas fa-file-alt mr-1 sm:mr-2"></i>技术文档
+                        </button>
+                    </div>
+                </div>
+                <!-- Desktop: bottom info -->
+                <div class="hidden md:block absolute bottom-0 left-0 right-0 bg-gradient-to-t from-dark to-transparent p-4 sm:p-6">
+                    <h3 class="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2">剑影江湖：血刃争锋</h3>
+                    <p class="text-xs sm:text-sm md:text-base text-gray-400">3D动作RPG游戏</p>
+                </div>
+            </div>
+
+            <!-- Technical Highlights -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 mt-10 sm:mt-12 md:mt-16">
+                <div class="group bg-primary/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 border border-white/10 hover:border-accent/50 hover:bg-primary/70 transition-all duration-300 cursor-default transform hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/10">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-accent/20 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 md:mb-6 group-hover:bg-accent/30 transition-colors duration-300">
+                        <i class="fas fa-robot text-lg sm:text-xl md:text-2xl text-accent"></i>
+                    </div>
+                    <h3 class="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 md:mb-4 group-hover:text-accent transition-colors duration-300">AI系统设计</h3>
+                    <p class="text-xs sm:text-sm md:text-base text-gray-400 leading-relaxed">
+                        敌人AI状态机实现，包含巡逻、追击、攻击、死亡等状态，
+                        支持NavMesh自动寻路和视野检测。
+                    </p>
+                </div>
+                <div class="group bg-primary/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 border border-white/10 hover:border-accent/50 hover:bg-primary/70 transition-all duration-300 cursor-default transform hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/10">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-accent/20 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 md:mb-6 group-hover:bg-accent/30 transition-colors duration-300">
+                        <i class="fas fa-magic text-lg sm:text-xl md:text-2xl text-accent"></i>
+                    </div>
+                    <h3 class="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 md:mb-4 group-hover:text-accent transition-colors duration-300">Shader开发</h3>
+                    <p class="text-xs sm:text-sm md:text-base text-gray-400 leading-relaxed">
+                        自定义Shader实现皮影戏效果，支持透明、双面渲染、背光强度控制，
+                        以及幕布透光效果。
+                    </p>
+                </div>
+                <div class="group bg-primary/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 border border-white/10 hover:border-accent/50 hover:bg-primary/70 transition-all duration-300 cursor-default transform hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/10 sm:col-span-2 md:col-span-1">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-accent/20 rounded-lg sm:rounded-xl flex items-center justify-center mb-3 sm:mb-4 md:mb-6 group-hover:bg-accent/30 transition-colors duration-300">
+                        <i class="fas fa-tools text-lg sm:text-xl md:text-2xl text-accent"></i>
+                    </div>
+                    <h3 class="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 md:mb-4 group-hover:text-accent transition-colors duration-300">工具开发</h3>
+                    <p class="text-xs sm:text-sm md:text-base text-gray-400 leading-relaxed">
+                        完整的DIY角色编辑器，支持绘制、镂空、上色三阶段流程，
+                        集成Vosk语音识别和FFmpeg视频导出功能。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-12 sm:py-16 md:py-20 px-4 bg-primary/30">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12 md:mb-16">
+                <span class="text-accent">关于</span>我
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
+                <div class="order-2 md:order-1">
+                    <div class="w-48 h-48 sm:w-64 sm:h-64 md:w-full md:aspect-square mx-auto bg-gradient-to-br from-accent/20 to-emerald-600/20 rounded-2xl flex items-center justify-center">
+                        <i class="fas fa-user-tie text-5xl sm:text-6xl md:text-8xl text-accent/50"></i>
+                    </div>
+                </div>
+                <div class="order-1 md:order-2">
+                    <h3 class="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 md:mb-6">Unity游戏开发工程师</h3>
+                    <p class="text-sm sm:text-base text-gray-300 mb-4 sm:mb-6 leading-relaxed">
+                        热爱游戏开发，专注于Unity技术栈。具备完整的游戏开发能力，
+                        从系统架构设计到具体功能实现，能够独立完成项目开发。
+                    </p>
+                    <div class="space-y-2 sm:space-y-3 md:space-y-4">
+                        <div class="flex items-center gap-2 sm:gap-3 md:gap-4">
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-check text-accent text-xs sm:text-sm md:text-base"></i>
+                            </div>
+                            <span class="text-xs sm:text-sm md:text-base">Unity引擎熟练使用</span>
+                        </div>
+                        <div class="flex items-center gap-2 sm:gap-3 md:gap-4">
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-check text-accent text-xs sm:text-sm md:text-base"></i>
+                            </div>
+                            <span class="text-xs sm:text-sm md:text-base">C#编程与设计模式</span>
+                        </div>
+                        <div class="flex items-center gap-2 sm:gap-3 md:gap-4">
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-check text-accent text-xs sm:text-sm md:text-base"></i>
+                            </div>
+                            <span class="text-xs sm:text-sm md:text-base">游戏AI与状态机设计</span>
+                        </div>
+                        <div class="flex items-center gap-2 sm:gap-3 md:gap-4">
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-check text-accent text-xs sm:text-sm md:text-base"></i>
+                            </div>
+                            <span class="text-xs sm:text-sm md:text-base">Shader与渲染管线</span>
+                        </div>
+                        <div class="flex items-center gap-2 sm:gap-3 md:gap-4">
+                            <div class="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 bg-accent/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-check text-accent text-xs sm:text-sm md:text-base"></i>
+                            </div>
+                            <span class="text-xs sm:text-sm md:text-base">工具链与编辑器扩展</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-12 sm:py-16 md:py-20 px-4">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 md:mb-8">
+                <span class="text-accent">联系</span>我
+            </h2>
+            <p class="text-base sm:text-lg md:text-xl text-gray-400 mb-6 sm:mb-8 md:mb-12 max-w-2xl mx-auto">
+                如果您对我的作品感兴趣，或者有合适的工作机会，欢迎联系我
+            </p>
+            <div class="flex flex-col gap-3 sm:gap-4 md:flex-row md:gap-6 justify-center">
+                <button onclick="copyToClipboard('2843136766@qq.com')" class="w-full sm:w-auto px-5 sm:px-6 md:px-8 py-3 sm:py-4 bg-accent text-dark font-semibold rounded-lg hover:bg-emerald-400 hover:shadow-lg hover:shadow-accent/30 transition-all duration-300 cursor-pointer text-center text-sm sm:text-base transform hover:-translate-y-0.5">
+                    <i class="fas fa-envelope mr-2"></i>邮箱: 2843136766@qq.com
+                </button>
+                <button onclick="copyToClipboard('2843136766')" class="w-full sm:w-auto px-5 sm:px-6 md:px-8 py-3 sm:py-4 border-2 border-accent text-accent font-semibold rounded-lg hover:bg-accent/10 hover:shadow-lg hover:shadow-accent/20 transition-all duration-300 cursor-pointer text-center text-sm sm:text-base transform hover:-translate-y-0.5">
+                    <i class="fab fa-qq mr-2"></i>QQ: 2843136766
+                </button>
+                <button onclick="copyToClipboard('Warmth-Light')" class="w-full sm:w-auto px-5 sm:px-6 md:px-8 py-3 sm:py-4 border-2 border-accent text-accent font-semibold rounded-lg hover:bg-accent/10 hover:shadow-lg hover:shadow-accent/20 transition-all duration-300 cursor-pointer text-center text-sm sm:text-base transform hover:-translate-y-0.5">
+                    <i class="fab fa-weixin mr-2"></i>微信: Warmth-Light
+                </button>
+            </div>
+            <div class="mt-6 sm:mt-8 md:mt-12 flex justify-center space-x-4 sm:space-x-6">
+                <button onclick="copyToClipboard('2843136766@qq.com')" class="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center hover:bg-accent/20 hover:shadow-lg hover:shadow-accent/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5" title="复制邮箱">
+                    <i class="fas fa-envelope text-base sm:text-lg md:text-xl"></i>
+                </button>
+                <button onclick="copyToClipboard('2843136766')" class="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center hover:bg-accent/20 hover:shadow-lg hover:shadow-accent/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5" title="复制QQ号">
+                    <i class="fab fa-qq text-base sm:text-lg md:text-xl"></i>
+                </button>
+                <button onclick="copyToClipboard('Warmth-Light')" class="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 bg-primary rounded-full flex items-center justify-center hover:bg-accent/20 hover:shadow-lg hover:shadow-accent/20 transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5" title="复制微信号">
+                    <i class="fab fa-weixin text-base sm:text-lg md:text-xl"></i>
+                </button>
+            </div>
+            <p class="mt-4 sm:mt-6 text-xs sm:text-sm text-gray-500">点击按钮可复制联系方式</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-6 sm:py-8 px-4 border-t border-white/10">
+        <div class="max-w-6xl mx-auto text-center text-gray-500 text-xs sm:text-sm">
+            <p>&copy; 2026 游戏开发作品集. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- 回到顶部按钮 -->
+    <button id="back-to-top" class="fixed bottom-6 right-6 w-12 h-12 bg-accent text-dark rounded-full shadow-lg shadow-accent/30 flex items-center justify-center opacity-0 invisible transition-all duration-300 hover:bg-emerald-400 hover:shadow-xl hover:shadow-accent/40 transform hover:-translate-y-1 cursor-pointer z-40" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- 视频模态框 -->
+    <div id="videoModal" class="modal">
+        <span class="modal-close" onclick="closeVideoModal()">&times;</span>
+        <div class="modal-content">
+            <video id="videoPlayer" controls style="max-width: 90vw; max-height: 80vh;">
+                <source id="videoSource" src="" type="video/mp4">
+                您的浏览器不支持视频播放。
+            </video>
+        </div>
+    </div>
+
+    <!-- 技术文档模态框 -->
+    <div id="docModal" class="doc-modal">
+        <span class="modal-close" onclick="closeDocModal()">&times;</span>
+        <div id="docContent" class="doc-content">
+            <!-- 文档内容将通过JavaScript加载 -->
+        </div>
+    </div>
+
+    <script>
+        // 复制到剪贴板功能
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // 创建提示框
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-auto bg-accent text-dark px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 text-sm sm:text-base';
+                toast.innerHTML = '<i class="fas fa-check mr-2"></i>已复制: ' + text;
+                document.body.appendChild(toast);
+
+                // 2秒后消失
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2000);
+            }).catch(err => {
+                console.error('复制失败:', err);
+                // 降级方案：使用textarea复制
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    const toast = document.createElement('div');
+                    toast.className = 'fixed bottom-4 left-4 right-4 sm:left-auto sm:right-4 sm:w-auto bg-accent text-dark px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg shadow-lg z-50 transition-opacity duration-300 text-sm sm:text-base';
+                    toast.innerHTML = '<i class="fas fa-check mr-2"></i>已复制: ' + text;
+                    document.body.appendChild(toast);
+                    setTimeout(() => {
+                        toast.style.opacity = '0';
+                        setTimeout(() => toast.remove(), 300);
+                    }, 2000);
+                } catch (e) {
+                    alert('复制失败，请手动复制: ' + text);
+                }
+                document.body.removeChild(textarea);
+            });
+        }
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            const isExpanded = !mobileMenu.classList.contains('hidden');
+            mobileMenuBtn.setAttribute('aria-expanded', isExpanded);
+        });
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('#mobile-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 视频模态框功能
+        function openVideoModal(videoId) {
+            const modal = document.getElementById('videoModal');
+            const video = document.getElementById('videoPlayer');
+            const source = document.getElementById('videoSource');
+
+            // 根据videoId设置视频源
+            if (videoId === 'shadowplay-video') {
+                source.src = 'videos/shadowplay.mp4';
+            } else if (videoId === 'jyjh-video') {
+                source.src = 'videos/jyjh.mp4';
+            }
+
+            video.load();
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const video = document.getElementById('videoPlayer');
+            video.pause();
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('videoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeVideoModal();
+            }
+        });
+
+        // 技术文档模态框功能
+        const techDocs = {
+            'shadowplay-doc': `
+<h1>🎭 Shadow Play（皮影戏）技术文档</h1>
+
+<h2>一、项目简介</h2>
+<p><strong>Shadow Play（皮影戏）</strong> 是一款基于 Unity 的中国皮影戏创作与表演工具，用户可以绘制 DIY 皮影角色，在舞台上操控表演，并导出为视频。</p>
+<p><strong>技术栈</strong>：Unity 2022.3 LTS、C#、RenderTexture、TargetJoint2D、Vosk 语音识别、FFmpeg</p>
+
+<h2>二、核心系统架构</h2>
+<h3>系统架构图</h3>
+<pre>
+┌─────────────────────────────────────────────────────────────┐
+│                    Shadow Play                              │
+├─────────────────────────────────────────────────────────────┤
+│  场景层: Start → MainWorkShop → DIYCharacter → Stage        │
+├─────────────────────────────────────────────────────────────┤
+│  系统层: DIY创建 | 三杆操控 | 时间轴录制 | 视频导出         │
+├─────────────────────────────────────────────────────────────┤
+│  技术层: 像素绘制 | 物理关节 | 关键帧录制 | FFmpeg编码       │
+└─────────────────────────────────────────────────────────────┘
+</pre>
+
+<h3>目录结构</h3>
+<ul>
+<li><strong>01_Scenes/</strong> - 6个场景文件</li>
+<li><strong>04_Scripts/</strong> - 42个C#脚本（DIY/Rod/Stage/Audio/UI）</li>
+<li><strong>06_ScriptableObjects/</strong> - 数据配置</li>
+<li><strong>08_Shaders/</strong> - 4个自定义着色器</li>
+</ul>
+
+<h2>三、核心技术实现</h2>
+
+<h3>3.1 DIY 角色创建系统</h3>
+<p><strong>技术难点</strong>：像素级绘制、形态学运算、部件组装</p>
+<p><strong>三阶段绘制流程</strong>：Drawing（绘制）→ Hollowing（镂空）→ Coloring（上色）</p>
+
+<h4>像素级绘制</h4>
+<pre>
+// 使用RenderTexture实现像素级绘制
+private void DrawDot(Vector2 position, float radius)
+{
+    int pixelX = (int)(position.x * canvasWidth);
+    int pixelY = (int)(position.y * canvasHeight);
+
+    for (int x = -brushSize; x <= brushSize; x++)
+    {
+        for (int y = -brushSize; y <= brushSize; y++)
+        {
+            if (x*x + y*y <= radius*radius)
+            {
+                renderTexture.SetPixel(pixelX + x, pixelY + y, drawColor);
+            }
+        }
+    }
+    renderTexture.Apply();
+}
+</pre>
+
+<h4>形态学闭运算</h4>
+<p>用于生成封闭区域遮罩：膨胀 + 腐蚀 = 闭运算</p>
+<pre>
+private void ApplyMorphologicalClosing()
+{
+    DilateTexture(sourceTexture, dilatedTexture, dilateRadius);
+    ErodeTexture(dilatedTexture, resultTexture, erodeRadius);
+}
+</pre>
+
+<h3>3.2 三杆操控系统</h3>
+<p><strong>技术难点</strong>：物理关节控制、多角色绑定、边界钳位</p>
+<pre>
+// 使用TargetJoint2D实现物理驱动的操控
+private void SetupRodBinding(GameObject character, RodType rodType)
+{
+    var joint = character.AddComponent<TargetJoint2D>();
+    joint.frequency = 10f;
+    joint.dampingRatio = 0.5f;
+}
+
+// 舞台边界钳位
+private Vector3 ClampToStage(Vector3 position)
+{
+    float clampedX = Mathf.Clamp(position.x, minX, maxX);
+    float clampedY = Mathf.Clamp(position.y, minY, maxY);
+    return new Vector3(clampedX, clampedY, position.z);
+}
+</pre>
+
+<h3>3.3 时间轴录制/回放</h3>
+<p><strong>数据结构</strong>：按角色组织的关键帧轨道</p>
+<pre>
+[Serializable]
+public class TransformKeyframe
+{
+    public float time;
+    public Vector3 position;
+    public Quaternion rotation;
+    public Vector3 scale;
+}
+</pre>
+
+<h3>3.4 视频导出</h3>
+<pre>
+// FFmpeg编码
+private void EncodeVideo()
+{
+    string args = $"-framerate 30 -i frames/frame_%06d.png " +
+                 $"-i recording.wav " +
+                 $"-c:v libx264 -crf 18 -pix_fmt yuv420p " +
+                 $"-c:a aac -shortest output.mp4";
+
+    Process.Start("ffmpeg", args);
+}
+</pre>
+
+<h2>四、自定义着色器</h2>
+<h3>皮影角色着色器</h3>
+<pre>
+Shader "ShadowPlay/Character"
+{
+    Properties
+    {
+        _MainTex ("Texture", 2D) = "white" {}
+        _TintColor ("Tint Color", Color) = (1,1,1,1)
+        _Backlight ("Backlight Intensity", Range(0,1)) = 0.5
+    }
+    SubShader
+    {
+        Tags {"Queue"="Transparent" "RenderType"="Transparent"}
+        Blend SrcAlpha OneMinusSrcAlpha
+        Cull Off  // 双面渲染
+
+        Pass
+        {
+            CGPROGRAM
+            fixed4 frag(v2f i) : SV_Target
+            {
+                fixed4 col = tex2D(_MainTex, i.uv) * _TintColor;
+                col.rgb += _Backlight * 0.2;
+                clip(col.a - 0.1);
+                return col;
+            }
+            ENDCG
+        }
+    }
+}
+</pre>
+
+<h2>五、项目亮点总结</h2>
+<ol>
+<li><strong>文化+技术结合</strong>：将传统皮影戏与现代数字技术融合</li>
+<li><strong>完整产品闭环</strong>：创作→选择→表演→录制→导出</li>
+<li><strong>物理驱动操控</strong>：TargetJoint2D实现真实的皮影操控感</li>
+<li><strong>图像处理算法</strong>：形态学运算、洪水填充、自动裁剪</li>
+<li><strong>第三方集成</strong>：Vosk语音识别 + FFmpeg视频编码</li>
+</ol>
+
+<p><strong>作者</strong>：王威龙 | <strong>Unity版本</strong>：2022.3.62f3c1 LTS | <strong>代码规模</strong>：42个C#脚本</p>
+            `,
+            'jyjh-doc': `
+<h1>⚔️ 剑影江湖：血刃争锋 技术文档</h1>
+
+<h2>一、项目简介</h2>
+<p><strong>剑影江湖：血刃争锋</strong> 是一款基于 Unity 的 3D 动作 RPG 游戏，包含完整的战斗系统、敌人 AI、技能系统、NPC 对话和关卡流程。</p>
+<p><strong>技术栈</strong>：Unity 2022.3 LTS、C#、CharacterController、NavMeshAgent、Animator State Machine</p>
+
+<h2>二、核心系统架构</h2>
+<h3>系统架构图</h3>
+<pre>
+┌─────────────────────────────────────────────────────────────┐
+│                剑影江湖：血刃争锋                            │
+├─────────────────────────────────────────────────────────────┤
+│  场景层: 开始界面 → 关卡选择 → 关卡一/二 → 胜利/失败        │
+├─────────────────────────────────────────────────────────────┤
+│  系统层: 玩家控制 | 敌人AI | 技能系统 | UI系统               │
+├─────────────────────────────────────────────────────────────┤
+│  功能层: 移动跳跃 | 巡逻追击 | 4种技能 | 血条蓝条            │
+│          攻击闪避 | 攻击状态 | 冷却系统 | NPC对话             │
+│          等级系统 | 掉落系统 | 特效系统 | 技能栏              │
+└─────────────────────────────────────────────────────────────┘
+</pre>
+
+<h2>三、核心技术实现</h2>
+
+<h3>3.1 玩家控制系统</h3>
+<p><strong>技术要点</strong>：CharacterController 移动、地面检测、多状态管理</p>
+<pre>
+public class JM_PlayerController : MonoBehaviour
+{
+    [Header("移动设置")]
+    public float moveSpeed = 5.67f;
+    public float rotateSpeed = 5.67f;
+
+    [Header("跳跃设置")]
+    public float jumpForce = 5.0f;
+    public float gravity = 10f;
+    public Transform groundCheck;
+    public float groundDistance = 0.18f;
+    public LayerMask groundMask;
+
+    void Update()
+    {
+        // 地面检测
+        isGround = Physics.CheckSphere(groundCheck.position, groundDistance, groundMask);
+
+        // 移动
+        float x = Input.GetAxis("Horizontal");
+        float z = Input.GetAxis("Vertical");
+        Vector3 move = transform.right * x + transform.forward * z;
+        controller.Move(move * moveSpeed * Time.deltaTime);
+
+        // 跳跃
+        if (Input.GetButtonDown("Jump") && isGround)
+        {
+            velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
+        }
+
+        // 重力
+        velocity.y += gravity * Time.deltaTime;
+        controller.Move(velocity * Time.deltaTime);
+    }
+}
+</pre>
+
+<h3>3.2 敌人 AI 系统</h3>
+<p><strong>技术要点</strong>：NavMeshAgent 寻路、状态机、视野检测</p>
+<pre>
+public class EnemyController : MonoBehaviour
+{
+    public enum EnemyState { Idle, Patrol, Chase, Attack, Die }
+
+    private EnemyState currentState = EnemyState.Patrol;
+
+    void Update()
+    {
+        switch (currentState)
+        {
+            case EnemyState.Patrol:
+                Patrol();
+                break;
+            case EnemyState.Chase:
+                ChasePlayer();
+                break;
+            case EnemyState.Attack:
+                AttackPlayer();
+                break;
+        }
+    }
+
+    private void Patrol()
+    {
+        agent.SetDestination(patrolPoints[Random.Range(0, patrolPoints.Length)].position);
+
+        if (Vector3.Distance(transform.position, player.position) < detectionRange)
+        {
+            currentState = EnemyState.Chase;
+        }
+    }
+}
+</pre>
+
+<h3>3.3 技能系统</h3>
+<p><strong>技术要点</strong>：技能配置、冷却管理、特效触发</p>
+<pre>
+public void UseSkill(int skillIndex)
+{
+    if (currentCooldowns[skillIndex] > 0) return;
+    if (playerMana < skillManaCosts[skillIndex]) return;
+
+    // 消耗蓝量
+    playerMana -= skillManaCosts[skillIndex];
+
+    // 生成技能特效
+    GameObject skill = Instantiate(skillPrefabs[skillIndex],
+                                   skillSpawnPoints[skillIndex].position,
+                                   skillSpawnPoints[skillIndex].rotation);
+
+    // 设置冷却
+    currentCooldowns[skillIndex] = skillCooldowns[skillIndex];
+
+    // 自动销毁
+    Destroy(skill, 2f);
+}
+</pre>
+
+<h3>3.4 Buff 系统</h3>
+<p><strong>技术要点</strong>：临时属性加成、持续时间管理、特效显示</p>
+<pre>
+private void OnTriggerEnter(Collider other)
+{
+    if (other.CompareTag("Player"))
+    {
+        // 增加攻击力
+        other.GetComponent<PlayerController>().attackDamage += attackBonus;
+
+        // 生成拾取特效
+        Instantiate(pickupEffect, transform.position, Quaternion.identity);
+
+        // 延迟移除Buff
+        StartCoroutine(RemoveBuffAfterDuration(other.gameObject));
+
+        Destroy(gameObject);
+    }
+}
+
+private IEnumerator RemoveBuffAfterDuration(GameObject player)
+{
+    yield return new WaitForSeconds(duration);
+    player.GetComponent<PlayerController>().attackDamage -= attackBonus;
+}
+</pre>
+
+<h2>四、关卡设计</h2>
+<h3>场景流程</h3>
+<pre>
+开始界面 (StartPanel.cs)
+    ↓
+关卡选择 (LevelChontroller.cs)
+    ├── 关卡一 (NavMesh已烘焙, 348KB)
+    └── 关卡二 (NavMesh已烘焙, 3.1MB)
+         ↓
+    战斗区域
+    ├── 木人敌人 x N
+    ├── 刀兵敌人 x N
+    └── Boss敌人 x 1
+         ↓
+胜利界面 (WinAndLose.cs) ←→ 失败界面
+</pre>
+
+<h2>五、UI 系统</h2>
+<h3>HUD 元素</h3>
+<ul>
+<li><strong>生命值条</strong> - 实时显示玩家HP</li>
+<li><strong>魔法值条</strong> - 实时显示玩家MP</li>
+<li><strong>等级显示</strong> - 当前等级</li>
+<li><strong>经验条</strong> - 升级进度</li>
+<li><strong>金币数量</strong> - 收集的金币</li>
+<li><strong>技能冷却</strong> - 4个技能的冷却状态</li>
+</ul>
+
+<h3>交互系统</h3>
+<ul>
+<li><strong>E键</strong> - 拾取物品、与NPC对话</li>
+<li><strong>H键</strong> - 使用血瓶</li>
+<li><strong>Q键</strong> - 切换武器</li>
+<li><strong>U/I/O/K键</strong> - 释放技能</li>
+<li><strong>ESC</strong> - 暂停菜单</li>
+</ul>
+
+<h2>六、项目亮点总结</h2>
+<ol>
+<li><strong>完整的游戏流程</strong> - 从开始界面到胜利/失败，体验完整</li>
+<li><strong>3种敌人类型</strong> - 木人（基础）、刀兵（中等）、Boss（高级）</li>
+<li><strong>Boss战设计</strong> - 3种攻击模式（范围、随机、追踪）</li>
+<li><strong>技能系统</strong> - 4个主动技能，独立冷却和蓝量消耗</li>
+<li><strong>Buff系统</strong> - 攻击力、移速、时间三种增益</li>
+<li><strong>NPC对话</strong> - 触发式对话系统</li>
+<li><strong>东方美术风格</strong> - Asian Far East Environment 资源包</li>
+</ol>
+
+<h2>七、技术难点与解决方案</h2>
+<table>
+<tr><th>难点</th><th>解决方案</th></tr>
+<tr><td>敌人寻路</td><td>使用 NavMeshAgent 自动寻路</td></tr>
+<tr><td>攻击判定</td><td>使用 Collider + OnTriggerEnter</td></tr>
+<tr><td>技能冷却</td><td>协程 + Time.deltaTime 计时</td></tr>
+<tr><td>Buff持续</td><td>协程延迟移除</td></tr>
+<tr><td>场景切换</td><td>SceneManager.LoadScene</td></tr>
+<tr><td>音效播放</td><td>AudioSource.PlayClipAtPoint</td></tr>
+</table>
+
+<p><strong>作者</strong>：王威龙 | <strong>Unity版本</strong>：2022.3.62f3c1 LTS | <strong>代码规模</strong>：27个C#脚本，约5000行代码</p>
+            `
+        };
+
+        function openDocModal(docId) {
+            const modal = document.getElementById('docModal');
+            const content = document.getElementById('docContent');
+
+            if (techDocs[docId]) {
+                content.innerHTML = techDocs[docId];
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeDocModal() {
+            const modal = document.getElementById('docModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('docModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDocModal();
+            }
+        });
+
+        // ESC键关闭模态框
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeVideoModal();
+                closeDocModal();
+            }
+        });
+
+        // 回到顶部按钮
+        const backToTopBtn = document.getElementById('back-to-top');
+
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.style.opacity = '1';
+                backToTopBtn.style.visibility = 'visible';
+            } else {
+                backToTopBtn.style.opacity = '0';
+                backToTopBtn.style.visibility = 'hidden';
+            }
+        });
+    </script>
+</body>
+</html>
